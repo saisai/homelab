@@ -1,0 +1,16 @@
+how to set up proxmox with k8s
+https://www.youtube.com/watch?v=JyyjQvhfzng
+https://github.com/automation-avenue/k8s-on-proxmox
+
+
+
+https://www.youtube.com/watch?v=NkM6wQL2UvM
+
+
+
+curl -fsSL https://pkgs.netbird.io/install.sh | sh
+netbird up --setup-key ECA4DFFF-649A-46F1-AE2C-2A558A7FE96C
+
+netbird status -d
+
+https://docs.netbird.io/selfhosted/selfhosted-guide

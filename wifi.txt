@@ -1,0 +1,33 @@
+#auto lo
+#iface lo inet loopback
+
+#iface nic0 inet manual
+
+#auto vmbr0
+#iface vmbr0 inet static
+#	address 192.168.2.200/24
+#	gateway 192.168.2.1
+#	bridge-ports nic0
+#	bridge-stp off
+#	bridge-fd 0
+
+#iface nic1 inet manual
+
+
+auto lo
+iface lo inet loopback
+
+auto wlp3s0
+iface wlp3s0 inet static
+    address 192.168.2.200/24
+    gateway 192.168.2.1
+    wpa-conf /etc/wpa_supplicant/wpa_supplicant.conf
+    dns-nameservers 192.168.2.1 8.8.8.8 1.1.1.1
+
+auto vmbr0
+iface vmbr0 inet manual
+    bridge-ports none
+    bridge-stp off
+    bridge-fd 0
+
+source /etc/network/interfaces.d/*

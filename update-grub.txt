@@ -1,0 +1,9 @@
+nano /etc/default/grub
+
+GRUB_CMDLINE_LINUX_DEFAULT="quiet intel_iommu=on"
+
+
+update-grub
+
+dmesg | grep -e DMAR -e IOMMU
+dmesg | grep 'remapping'

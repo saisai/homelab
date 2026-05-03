@@ -11,16 +11,12 @@ kubectl get -n linkding pods
 
 kubectl port-forward -n linkding --address 0.0.0.0 pod/linkding-9ff785498-fvpzt 9090:9090
 
-kubectl exec -it -n linkding linkding-57d6767595-mcszd -- python manage.py createsuperuser --username=snp --email=snp@gmail.com
+kubectl exec -it -n linkding linkding-57d6767595-mcszd -- python manage.py createsuperuser --username=susu --email=susu@gmail.com
 
 kubectl rollout restart deployment/linkding -n linkding
 
-https://www.youtube.com/watch?v=NkM6wQL2UvM&t=2s
-
-
- kubectl get pvc -n linkding
- 
- 
+kubectl get pvc -n linkding
+  
 kubectl get pods -n linkding
 kubectl get svc -n linkding
 kubectl get pvc -n linkding
@@ -36,7 +32,6 @@ kubectl apply -f linkding-ingress.yaml
 kubectl rollout restart deployment/linkding -n linkding
 kubectl rollout status deployment/linkding -n linkding
 
-
- kubectl logs -f linkding-9c578f8d5-bhqlg -n linkding
+kubectl logs -f linkding-9c578f8d5-bhqlg -n linkding
  
 sudo lsof -i :80

@@ -1,0 +1,10 @@
+/usr/share/javascript/proxmox-widget-toolkit/proxmoxlib.js
+
+find checked_command and update like this to disable subscription popup
+checked_command: function (orig_cmd) {
+	orig_cmd();
+	return;
+	
+https://youtu.be/Iz76KqzloJY?t=2010
+
+systemctl restart pveproxy

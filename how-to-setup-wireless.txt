@@ -1,0 +1,10 @@
+apt install wpasupplicant wireless-tools
+
+WIFI
+
+apt install wpasupplicant wireless-tools
+
+
+wpa_passphrase "wifi name" "wifi password" > /etc/wpa_supplicant/wpa_supplicant.conf
+
+wpa_supplicant -B -i wlp3s0 -c /etc/wpa_supplicant/wpa_supplicant.conf

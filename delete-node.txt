@@ -1,0 +1,13 @@
+Follow these steps to remove the worker node from Kubernetes:
+
+
+1.List all the nodes from the cluster
+kubectl get nodes
+
+2.Drain node in preparation for maintenance
+kubectl drain <node-name> --ignore-daemonsets
+
+3.Delete node by its name
+kubectl delete node <node-name>
+
+https://stackoverflow.com/questions/35757620/how-to-gracefully-remove-a-node-from-kubernetes

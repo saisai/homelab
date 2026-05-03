@@ -1,0 +1,175 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: linkding
+---
+# 1. Persistent Volume mapped to the host directory
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: linkding-pv
+  namespace: linkding
+spec:
+  capacity:
+    storage: 2Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: /mnt/linkding-data
+---
+# 2. Persistent Volume Claim
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: linkding-data-pvc
+  namespace: linkding
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+  storageClassName: "" # Empty string bypasses dynamic provisioning
+---
+# 3. Linkding Deployment with Persistent Storage and Context Path
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: linkding
+  namespace: linkding
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: linkding
+  template:
+    metadata:
+      labels:
+        app: linkding
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: k8s-worker1 
+      containers:
+        - name: linkding
+          image: sissbruecker/linkding:1.45.0
+          ports:
+            - containerPort: 9090
+          env:
+            - name: LD_DISABLE_HTTPS
+              value: "False"
+            - name: LD_CONTEXT_PATH
+              value: "linkding/"
+            - name: LD_CSRF_TRUSTED_ORIGINS
+              value: "http://snp.eu1.netbird.services,https://snp.eu1.netbird.services"
+          volumeMounts:
+            - name: linkding-data
+              mountPath: /etc/linkding/data
+      volumes:
+        - name: linkding-data
+          persistentVolumeClaim:
+            claimName: linkding-data-pvc
+---
+# 4. Linkding Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: linkding-service
+  namespace: linkding
+spec:
+  selector:
+    app: linkding
+  ports:
+    - protocol: TCP
+      port: 9090
+      targetPort: 9090
+  type: ClusterIP
+---
+# 5. Linkding Ingress
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: linkding-ingress
+  namespace: linkding
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: snp.eu1.netbird.services
+      http:
+        paths:
+          - path: /linkding/
+            pathType: Prefix
+            backend:
+              service:
+                name: linkding-service
+                port:
+                  number: 9090
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: caddy-config
+  namespace: linkding
+data:
+  Caddyfile: |
+    http://snp.eu1.netbird.services {
+        route /linkding/* {
+            reverse_proxy linkding-service.linkding.svc.cluster.local:9090
+        }
+    }
+    :80 {
+        route /linkding/* {
+            reverse_proxy linkding-service.linkding.svc.cluster.local:9090
+            }
+        }
+
+    #http://snp.eu1.netbird.services, http://192.168.2.201 {
+        # Route requests to the linkding service
+        #    route /linkding/* {
+        #reverse_proxy linkding-service.linkding.svc.cluster.local:9090
+        #}
+      #}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: caddy-proxy
+  namespace: linkding
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: caddy
+  template:
+    metadata:
+      labels:
+        app: caddy
+    spec:
+      containers:
+        - name: caddy
+          image: caddy:latest
+          ports:
+            - containerPort: 80
+              name: http
+          volumeMounts:
+            - name: caddy-config
+              mountPath: /etc/caddy/Caddyfile
+              subPath: Caddyfile
+      volumes:
+        - name: caddy-config
+          configMap:
+            name: caddy-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: caddy-service
+  namespace: linkding
+spec:
+  selector:
+    app: caddy
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: LoadBalancer

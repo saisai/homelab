@@ -14,3 +14,9 @@ netbird up --setup-key ECA4DFFF-649A-46F1-AE2C-2A558A7FE96C
 netbird status -d
 
 https://docs.netbird.io/selfhosted/selfhosted-guide
+
+
+
+https://gist.github.com/shaiguitar/627d52ebc0c03af488477b5d636a8909
+
+
